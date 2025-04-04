@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import CryptoJS from "crypto-js";
@@ -12,6 +12,13 @@ export default function Des() {
   const [encryptedResults, setEncryptedResults] = useState([]);
   const [decryptionKey, setDecryptionKey] = useState("");
   const [decryptedResults, setDecryptedResults] = useState([]);
+
+  // Automatically scroll to the top after decryption
+  useEffect(() => {
+    if (decryptedResults.length > 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [decryptedResults]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -47,7 +54,8 @@ export default function Des() {
           keySize: 64 / 32,
           iterations: 1000,
         });
-        let iv, config = { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+        let iv,
+          config = { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
         if (encryptionMode === "CBC") {
           if (ivInput) {
             iv = CryptoJS.enc.Hex.parse(ivInput);
@@ -139,25 +147,29 @@ export default function Des() {
       setDecryptedResults((prev) => [...prev, decObj]);
     } catch (error) {
       console.error("Decryption error", error);
-      alert("Decryption failed. Please check your decryption key and parameters.");
+      alert(
+        "Decryption failed. Please check your decryption key and parameters."
+      );
     }
   };
 
-  // Inline styling
+  // Updated styling for an appealing UI
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: "20px",
-    background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
+    padding: "40px",
+    background: "linear-gradient(135deg, #667eea, #764ba2)",
     minHeight: "100vh",
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    color: "#fff",
   };
 
   const cardStyle = {
-    backgroundColor: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     padding: "32px",
-    borderRadius: "8px",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    borderRadius: "12px",
+    boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
     textAlign: "center",
     maxWidth: "600px",
     width: "100%",
@@ -165,45 +177,56 @@ export default function Des() {
   };
 
   const headingStyle = {
-    fontSize: "28px",
+    fontSize: "32px",
     fontWeight: "bold",
     marginBottom: "24px",
     color: "#333",
   };
 
   const inputStyle = {
-    margin: "8px 0",
-    padding: "8px",
-    fontSize: "14px",
+    margin: "12px 0",
+    padding: "12px",
+    fontSize: "16px",
     width: "100%",
     boxSizing: "border-box",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    color: "black",
   };
 
   const selectStyle = {
-    margin: "8px 0",
-    padding: "8px",
-    fontSize: "14px",
+    margin: "12px 0",
+    padding: "12px",
+    fontSize: "16px",
     width: "100%",
     boxSizing: "border-box",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    backgroundColor: "#fff",
   };
 
   const textareaStyle = {
     width: "100%",
     height: "150px",
-    marginTop: "8px",
-    padding: "8px",
+    marginTop: "12px",
+    padding: "12px",
     fontFamily: "monospace",
-    fontSize: "14px",
+    fontSize: "16px",
     border: "1px solid #ccc",
-    borderRadius: "4px",
+    borderRadius: "6px",
     resize: "none",
   };
 
   const buttonStyle = {
-    padding: "10px 20px",
-    margin: "8px",
+    padding: "12px 24px",
+    margin: "12px 8px",
     fontSize: "16px",
     cursor: "pointer",
+    borderRadius: "6px",
+    border: "none",
+    backgroundColor: "#4a90e2",
+    color: "#fff",
+    transition: "background-color 0.3s ease",
   };
 
   return (
@@ -260,23 +283,49 @@ export default function Des() {
       </div>
       {encryptedResults.length > 0 && (
         <div style={cardStyle}>
-          <h2 style={{ ...headingStyle, fontSize: "22px", marginBottom: "16px" }}>
+          <h2
+            style={{
+              ...headingStyle,
+              fontSize: "28px",
+              marginBottom: "16px",
+              color: "#333",
+            }}
+          >
             Encrypted Results
           </h2>
           {encryptedResults.map((result, idx) => (
             <div
               key={idx}
-              style={{ border: "1px solid #ddd", padding: "8px", marginBottom: "8px" }}
+              style={{
+                border: "1px solid #ddd",
+                padding: "12px",
+                marginBottom: "12px",
+                borderRadius: "6px",
+                backgroundColor: "#f9f9f9",
+                textAlign: "left",
+              }}
             >
               <strong>{result.fileName}</strong>
               <p>Encrypted Data:</p>
-              <textarea readOnly value={result.encryptedData} style={textareaStyle} />
-              <p>Salt: {result.salt}</p>
-              {encryptionMode === "CBC" && <p>IV: {result.iv}</p>}
-              <button style={buttonStyle} onClick={() => copyToClipboard(result.encryptedData)}>
+              <textarea
+                readOnly
+                value={result.encryptedData}
+                style={textareaStyle}
+              />
+              <p style={{ color: "black" }}>Salt: {result.salt}</p>
+              {encryptionMode === "CBC" && (
+                <p style={{ color: "black" }}>IV: {result.iv}</p>
+              )}
+              <button
+                style={buttonStyle}
+                onClick={() => copyToClipboard(result.encryptedData)}
+              >
                 Copy to Clipboard
               </button>
-              <button style={buttonStyle} onClick={() => downloadEncryptedFile(result)}>
+              <button
+                style={buttonStyle}
+                onClick={() => downloadEncryptedFile(result)}
+              >
                 Download
               </button>
               <button style={buttonStyle} onClick={() => decryptFile(result)}>
@@ -288,14 +337,30 @@ export default function Des() {
       )}
       {decryptedResults.length > 0 && (
         <div style={cardStyle}>
-          <h2 style={{ ...headingStyle, fontSize: "22px", marginBottom: "16px" }}>
+          <h2
+            style={{
+              ...headingStyle,
+              fontSize: "28px",
+              marginBottom: "16px",
+              color: "#333",
+            }}
+          >
             Decrypted Files
           </h2>
           {decryptedResults.map((dec, idx) => (
-            <div key={idx} style={{ marginBottom: "8px" }}>
+            <div key={idx} style={{ marginBottom: "12px" }}>
               <strong>{dec.fileName}</strong>
               <br />
-              <a href={dec.decryptedUrl} download={dec.fileName}>
+              <a
+                href={dec.decryptedUrl}
+                download={dec.fileName}
+                style={{
+                  ...buttonStyle,
+                  textDecoration: "none",
+                  display: "inline-block",
+                  marginTop: "8px",
+                }}
+              >
                 Download Decrypted File
               </a>
             </div>
