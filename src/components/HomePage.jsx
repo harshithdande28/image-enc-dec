@@ -1,108 +1,106 @@
-import React, { useState } from "react";
-import Aes from "./Aes";
-import Des from "./Des";
-// import Substitution from "./Substitution"; // Uncomment if you have a substitution cipher component
+// HomePage.jsx
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function HomePage() {
-  const [selectedEncryption, setSelectedEncryption] = useState(null);
-
-  const handleSelection = (type) => {
-    setSelectedEncryption(type);
-  };
-
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    height: "100vh",
-    background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
-    padding: "20px",
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    fontFamily: "Roboto, Arial, sans-serif",
+    padding: "20px"
   };
 
   const cardStyle = {
-    backgroundColor: "white",
-    padding: "40px",
+    backgroundColor: "#fff",
+    border: "1px solid #ccc",
     borderRadius: "12px",
-    boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-    textAlign: "center",
-    maxWidth: "500px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    padding: "40px",
+    margin: "20px",
+    maxWidth: "700px",
     width: "100%",
+    textAlign: "center"
   };
 
-  const titleStyle = {
-    fontSize: "32px",
-    marginBottom: "16px",
-    color: "#333",
+  const logoStyle = {
+    fontSize: "64px",
     fontWeight: "bold",
+    color: "#4285F4",
+    marginBottom: "10px"
   };
 
-  const subtitleStyle = {
-    fontSize: "18px",
-    marginBottom: "24px",
-    color: "#555",
+  const welcomeStyle = {
+    fontSize: "24px",
+    fontWeight: "normal",
+    color: "#202124",
+    marginBottom: "20px"
   };
 
-  const buttonStyle = {
+  const descriptionStyle = {
+    fontSize: "16px",
+    color: "#5F6368",
+    lineHeight: "1.6",
+    marginBottom: "30px"
+  };
+
+  const linkContainerStyle = {
+    display: "flex",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    gap: "20px"
+  };
+
+  const linkStyle = {
     padding: "12px 24px",
-    fontSize: "16px",
-    margin: "8px",
-    border: "none",
     borderRadius: "6px",
-    cursor: "pointer",
-    backgroundColor: "#4a90e2",
-    color: "white",
-    transition: "background-color 0.3s ease",
-  };
-
-  // Updated Back button style for better visibility
-  const backButtonStyle = {
-    position: "absolute",
-    top: "20px",
-    left: "20px",
-    padding: "10px 20px",
+    textDecoration: "none",
+    color: "#fff",
+    backgroundColor: "#4285F4",
     fontSize: "16px",
+    fontWeight: "500",
     border: "none",
-    borderRadius: "4px",
     cursor: "pointer",
-    backgroundColor: "#e74c3c",
-    color: "white",
-    zIndex: 10,
+    transition: "background-color 0.3s ease"
   };
 
   return (
     <div style={containerStyle}>
-      {selectedEncryption ? (
-        <div style={{ width: "100%", position: "relative" }}>
-          <button
-            style={backButtonStyle}
-            onClick={() => setSelectedEncryption(null)}
-          >
-            &larr; Back
-          </button>
-          <div style={{ marginTop: "60px" }}>
-            {selectedEncryption === "AES" && <Aes />}
-            {selectedEncryption === "DES" && <Des />}
-            {/* Uncomment the line below if you have a substitution cipher component */}
-            {/* {selectedEncryption === "Substitution" && <Substitution />} */}
-          </div>
+      <div style={cardStyle}>
+        <div style={logoStyle}>Encryption Hub</div>
+        <div style={welcomeStyle}>
+          Welcome to the File Encryption Portal
         </div>
-      ) : (
-        <div style={cardStyle}>
-          <h1 style={titleStyle}>File Encryption</h1>
-          <p style={subtitleStyle}>Select encryption type:</p>
-          <button style={buttonStyle} onClick={() => handleSelection("AES")}>
+        <div style={descriptionStyle}>
+          Secure your files with a variety of encryption techniques. Our application
+          supports four ciphers:
+          <br /><br />
+          <strong>AES:</strong> A modern, secure standard for data encryption.
+          <br />
+          <strong>DES:</strong> A classic algorithm that laid the groundwork for encryption.
+          <br />
+          <strong>Caesar Cipher:</strong> A simple byte-shift technique adapted for images.
+          <br />
+          <strong>Affine Cipher:</strong> Combines multiplication and addition modulo 256.
+        </div>
+        <div style={linkContainerStyle}>
+          <Link to="/aes" style={linkStyle}>
             AES Encryption
-          </button>
-          <button style={buttonStyle} onClick={() => handleSelection("DES")}>
+          </Link>
+          <Link to="/des" style={linkStyle}>
             DES Encryption
-          </button>
-          {/* Uncomment if you have a substitution cipher option */}
-          {/* <button style={buttonStyle} onClick={() => handleSelection("Substitution")}>
-            Substitution Cipher
-          </button> */}
+          </Link>
+          <Link to="/caesar" style={linkStyle}>
+            Caesar Cipher
+          </Link>
+          <Link to="/affine" style={linkStyle}>
+            Affine Cipher
+          </Link>
         </div>
-      )}
+      </div>
     </div>
   );
 }
