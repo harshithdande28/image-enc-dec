@@ -180,7 +180,7 @@ export default function Des() {
     fontSize: "32px",
     fontWeight: "bold",
     marginBottom: "24px",
-    color: "#333",
+    color: "rgb(66, 133, 244)",
   };
 
   const inputStyle = {

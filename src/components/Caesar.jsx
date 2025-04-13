@@ -93,8 +93,13 @@ export default function Caesar() {
     try {
       // Since we stored the encrypted bytes from the original read,
       // we can directly perform the decryption.
-      const decryptedBytes = caesarDecryptBuffer(result.encryptedBytes.buffer, shift);
-      const decryptedBlob = new Blob([decryptedBytes], { type: result.fileType });
+      const decryptedBytes = caesarDecryptBuffer(
+        result.encryptedBytes.buffer,
+        shift
+      );
+      const decryptedBlob = new Blob([decryptedBytes], {
+        type: result.fileType,
+      });
       const decryptedUrl = URL.createObjectURL(decryptedBlob);
       const decObj = { fileName: result.fileName, decryptedUrl: decryptedUrl };
       setDecryptedResults((prev) => [...prev, decObj]);
@@ -141,7 +146,7 @@ export default function Caesar() {
     fontSize: "32px",
     fontWeight: "bold",
     marginBottom: "24px",
-    color: "#333",
+    color: "rgb(66, 133, 244)",
   };
 
   const inputStyle = {
@@ -211,7 +216,10 @@ export default function Caesar() {
               <button
                 style={buttonStyle}
                 onClick={() =>
-                  downloadFile(result.encryptedUrl, result.fileName + "_encrypted")
+                  downloadFile(
+                    result.encryptedUrl,
+                    result.fileName + "_encrypted"
+                  )
                 }
               >
                 Download Encrypted File
@@ -236,7 +244,10 @@ export default function Caesar() {
             Decrypted Images
           </h2>
           {decryptedResults.map((dec, idx) => (
-            <div key={idx} style={{ marginBottom: "12px", textAlign: "center" }}>
+            <div
+              key={idx}
+              style={{ marginBottom: "12px", textAlign: "center" }}
+            >
               <strong>{dec.fileName}</strong>
               <br />
               <img
@@ -247,7 +258,9 @@ export default function Caesar() {
               <br />
               <button
                 style={buttonStyle}
-                onClick={() => downloadFile(dec.decryptedUrl, dec.fileName + "_decrypted")}
+                onClick={() =>
+                  downloadFile(dec.decryptedUrl, dec.fileName + "_decrypted")
+                }
               >
                 Download Decrypted File
               </button>

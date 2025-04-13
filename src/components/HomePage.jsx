@@ -72,7 +72,7 @@ export default function HomePage() {
       <div style={cardStyle}>
         <div style={logoStyle}>Encryption Hub</div>
         <div style={welcomeStyle}>
-          Welcome to the File Encryption Portal
+          Welcome to the Image Encryption Portal
         </div>
         <div style={descriptionStyle}>
           Secure your files with a variety of encryption techniques. Our application

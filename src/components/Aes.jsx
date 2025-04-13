@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Button from "./ui/Button";
 import Input from "./ui/Input";
 import CryptoJS from "crypto-js";
 
@@ -186,7 +185,7 @@ export default function Aes() {
     fontSize: "32px",
     fontWeight: "bold",
     marginBottom: "24px",
-    color: "#333",
+    color: "rgb(66, 133, 244)",
   };
 
   const inputStyle = {

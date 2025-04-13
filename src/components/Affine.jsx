@@ -3,8 +3,11 @@ import Input from "./ui/Input";
 
 // Compute the multiplicative inverse of a modulo m using the Extended Euclidean Algorithm.
 function getModularInverse(a, m) {
-  let m0 = m, t, q;
-  let x0 = 0, x1 = 1;
+  let m0 = m,
+    t,
+    q;
+  let x0 = 0,
+    x1 = 1;
   if (m === 1) return 0;
   while (a > 1) {
     q = Math.floor(a / m);
@@ -123,16 +126,26 @@ export default function Affine() {
     const a = parseInt(decryptionA, 10);
     const b = parseInt(decryptionB, 10);
     if (isNaN(a) || isNaN(b)) {
-      alert("Please enter valid numeric values for decryption multiplier and offset.");
+      alert(
+        "Please enter valid numeric values for decryption multiplier and offset."
+      );
       return;
     }
     if (getModularInverse(a, 256) === 0) {
-      alert("Decryption multiplier 'a' must be an odd number (invertible modulo 256).");
+      alert(
+        "Decryption multiplier 'a' must be an odd number (invertible modulo 256)."
+      );
       return;
     }
     try {
-      const decryptedBytes = affineDecryptBuffer(result.encryptedBytes.buffer, a, b);
-      const decryptedBlob = new Blob([decryptedBytes], { type: result.fileType });
+      const decryptedBytes = affineDecryptBuffer(
+        result.encryptedBytes.buffer,
+        a,
+        b
+      );
+      const decryptedBlob = new Blob([decryptedBytes], {
+        type: result.fileType,
+      });
       const decryptedUrl = URL.createObjectURL(decryptedBlob);
       const decObj = { fileName: result.fileName, decryptedUrl };
       setDecryptedResults((prev) => [...prev, decObj]);
@@ -179,7 +192,7 @@ export default function Affine() {
     fontSize: "32px",
     fontWeight: "bold",
     marginBottom: "24px",
-    color: "#333",
+    color: "rgb(66, 133, 244)",
   };
 
   const inputStyle = {
@@ -256,7 +269,10 @@ export default function Affine() {
               <button
                 style={buttonStyle}
                 onClick={() =>
-                  downloadFile(result.encryptedUrl, result.fileName + "_encrypted")
+                  downloadFile(
+                    result.encryptedUrl,
+                    result.fileName + "_encrypted"
+                  )
                 }
               >
                 Download Encrypted File
@@ -288,7 +304,10 @@ export default function Affine() {
             Decrypted Images
           </h2>
           {decryptedResults.map((dec, idx) => (
-            <div key={idx} style={{ marginBottom: "12px", textAlign: "center" }}>
+            <div
+              key={idx}
+              style={{ marginBottom: "12px", textAlign: "center" }}
+            >
               <strong>{dec.fileName}</strong>
               <br />
               <img
