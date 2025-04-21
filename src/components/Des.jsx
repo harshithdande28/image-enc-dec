@@ -363,6 +363,12 @@ export default function Des() {
               >
                 Download Decrypted File
               </a>
+              <br />
+              <img
+                src={dec.decryptedUrl}
+                alt={`Decrypted ${dec.fileName}`}
+                style={{ marginTop: "8px", maxWidth: "100%" }}
+              />
             </div>
           ))}
         </div>
