@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import Input from "./ui/Input";
 import CryptoJS from "crypto-js";
 
-// (Optional) Helper function to generate a random IV
+// Helper function to generate random IV
 const generateRandomIV = (bytes = 16) => {
   const ivWordArray = CryptoJS.lib.WordArray.random(bytes);
   return ivWordArray.toString(CryptoJS.enc.Hex);
 };
 
-export default function Aes() {
+export default function Aes({ comparisonRef }) {
+  // Accept comparisonRef here
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [encryptionKey, setEncryptionKey] = useState("");
   const [encryptionMode, setEncryptionMode] = useState("CBC");
@@ -18,7 +19,6 @@ export default function Aes() {
   const [decryptionKey, setDecryptionKey] = useState("");
   const [decryptedResults, setDecryptedResults] = useState([]);
 
-  // Automatically scroll to the top after decryption
   useEffect(() => {
     if (decryptedResults.length > 0) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -32,13 +32,11 @@ export default function Aes() {
     setDecryptedResults([]);
   };
 
-  // Auto-generate an IV (if needed)
   const generateIV = () => {
     const ivHex = generateRandomIV(16);
     setIvInput(ivHex);
   };
 
-  // Encrypt each selected file using AES
   const encryptFiles = () => {
     if (selectedFiles.length === 0) {
       alert("Please select at least one file.");
@@ -52,15 +50,19 @@ export default function Aes() {
     selectedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
+        const startTime = performance.now(); // Start timer
+
         const wordArray = CryptoJS.lib.WordArray.create(reader.result);
         const salt = CryptoJS.lib.WordArray.random(128 / 8);
-        // Derive a 128-bit key using PBKDF2 from the user-supplied encryption key
+
         const derivedKey = CryptoJS.PBKDF2(encryptionKey, salt, {
           keySize: 128 / 32,
           iterations: 1000,
         });
+
         let iv,
           config = { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+
         if (encryptionMode === "CBC") {
           if (ivInput) {
             iv = CryptoJS.enc.Hex.parse(ivInput);
@@ -73,11 +75,25 @@ export default function Aes() {
         } else if (encryptionMode === "ECB") {
           config.mode = CryptoJS.mode.ECB;
         }
+        
         const encrypted = CryptoJS.AES.encrypt(wordArray, derivedKey, config);
+        const endTime = performance.now(); // End timer
+
         const encryptedStr =
           outputEncoding === "Hex"
             ? encrypted.ciphertext.toString(CryptoJS.enc.Hex)
             : encrypted.toString();
+
+        // Add to Comparison Report
+        if (comparisonRef?.current) {
+          comparisonRef.current.addComparison(
+            "AES",
+            encryptedStr,
+            startTime,
+            endTime
+          );
+        }
+
         const resultObj = {
           fileName: file.name,
           encryptedData: encryptedStr,
@@ -93,13 +109,11 @@ export default function Aes() {
     });
   };
 
-  // Copy text to the clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert("Copied to clipboard");
   };
 
-  // Download the encrypted result as a JSON file (including salt and IV)
   const downloadEncryptedFile = (result) => {
     const dataToDownload = JSON.stringify(result, null, 2);
     const blob = new Blob([dataToDownload], { type: "application/json" });
@@ -112,7 +126,6 @@ export default function Aes() {
     document.body.removeChild(a);
   };
 
-  // Decrypt a specific encrypted result using the user-supplied decryption key
   const decryptFile = (result) => {
     if (!decryptionKey || decryptionKey.length < 16) {
       alert("Decryption key must be at least 16 characters.");
@@ -158,7 +171,7 @@ export default function Aes() {
     }
   };
 
-  // Updated styling for an appealing UI
+  // Styling
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
@@ -286,16 +299,10 @@ export default function Aes() {
           Encrypt Files
         </button>
       </div>
+
       {encryptedResults.length > 0 && (
         <div style={cardStyle}>
-          <h2
-            style={{
-              ...headingStyle,
-              fontSize: "28px",
-              marginBottom: "16px",
-              color: "#333",
-            }}
-          >
+          <h2 style={{ ...headingStyle, fontSize: "28px", color: "#333" }}>
             Encrypted Results
           </h2>
           {encryptedResults.map((result, idx) => (
@@ -340,6 +347,7 @@ export default function Aes() {
           ))}
         </div>
       )}
+
       <div style={cardStyle}>
         <Input
           type="password"
@@ -349,16 +357,10 @@ export default function Aes() {
           style={inputStyle}
         />
       </div>
+
       {decryptedResults.length > 0 && (
         <div style={cardStyle}>
-          <h2
-            style={{
-              ...headingStyle,
-              fontSize: "28px",
-              marginBottom: "16px",
-              color: "#333",
-            }}
-          >
+          <h2 style={{ ...headingStyle, fontSize: "28px", color: "#333" }}>
             Decrypted Files
           </h2>
           {decryptedResults.map((dec, idx) => (

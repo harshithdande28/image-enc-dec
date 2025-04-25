@@ -3,7 +3,8 @@ import Button from "./ui/Button";
 import Input from "./ui/Input";
 import CryptoJS from "crypto-js";
 
-export default function Des() {
+export default function Des({ comparisonRef }) {
+  // Accept comparisonRef
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [encryptionKey, setEncryptionKey] = useState("");
   const [encryptionMode, setEncryptionMode] = useState("CBC");
@@ -13,7 +14,6 @@ export default function Des() {
   const [decryptionKey, setDecryptionKey] = useState("");
   const [decryptedResults, setDecryptedResults] = useState([]);
 
-  // Automatically scroll to the top after decryption
   useEffect(() => {
     if (decryptedResults.length > 0) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -27,13 +27,11 @@ export default function Des() {
     setDecryptedResults([]);
   };
 
-  // Auto-generate an IV for DES (8 bytes)
   const generateIV = () => {
     const ivWordArray = CryptoJS.lib.WordArray.random(8);
     setIvInput(ivWordArray.toString(CryptoJS.enc.Hex));
   };
 
-  // Encrypt each selected file using DES
   const encryptFiles = () => {
     if (selectedFiles.length === 0) {
       alert("Please select at least one file.");
@@ -47,15 +45,18 @@ export default function Des() {
     selectedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
+        const startTime = performance.now(); // Start timer
+
         const wordArray = CryptoJS.lib.WordArray.create(reader.result);
         const salt = CryptoJS.lib.WordArray.random(128 / 8);
-        // Derive a 64-bit key (8 bytes) for DES using PBKDF2
         const derivedKey = CryptoJS.PBKDF2(encryptionKey, salt, {
           keySize: 64 / 32,
           iterations: 1000,
         });
+
         let iv,
           config = { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+
         if (encryptionMode === "CBC") {
           if (ivInput) {
             iv = CryptoJS.enc.Hex.parse(ivInput);
@@ -68,11 +69,25 @@ export default function Des() {
         } else if (encryptionMode === "ECB") {
           config.mode = CryptoJS.mode.ECB;
         }
+
         const encrypted = CryptoJS.DES.encrypt(wordArray, derivedKey, config);
+        const endTime = performance.now(); // End timer
+
         const encryptedStr =
           outputEncoding === "Hex"
             ? encrypted.ciphertext.toString(CryptoJS.enc.Hex)
             : encrypted.toString();
+
+        // Log to Comparison Report
+        if (comparisonRef?.current) {
+          comparisonRef.current.addComparison(
+            "DES",
+            encryptedStr,
+            startTime,
+            endTime
+          );
+        }
+
         const resultObj = {
           fileName: file.name,
           encryptedData: encryptedStr,
@@ -88,13 +103,11 @@ export default function Des() {
     });
   };
 
-  // Copy text to clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert("Copied to clipboard");
   };
 
-  // Download the encrypted result as a JSON file (including salt and IV)
   const downloadEncryptedFile = (result) => {
     const dataToDownload = JSON.stringify(result, null, 2);
     const blob = new Blob([dataToDownload], { type: "application/json" });
@@ -107,7 +120,6 @@ export default function Des() {
     document.body.removeChild(a);
   };
 
-  // Decrypt a specific encrypted result using the user-supplied decryption key
   const decryptFile = (result) => {
     if (!decryptionKey || decryptionKey.length < 16) {
       alert("Decryption key must be at least 16 characters.");
@@ -153,7 +165,7 @@ export default function Des() {
     }
   };
 
-  // Updated styling for an appealing UI
+  // Styling
   const containerStyle = {
     display: "flex",
     flexDirection: "column",

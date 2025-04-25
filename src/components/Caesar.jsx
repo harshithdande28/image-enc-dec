@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Input from "./ui/Input";
 
-// Encrypts an ArrayBuffer using a byte‑shift (Caesar cipher) for binary data.
+// Encrypts an ArrayBuffer using a byte-shift (Caesar cipher) for binary data.
 function caesarEncryptBuffer(buffer, shift) {
   const bytes = new Uint8Array(buffer);
   const encryptedBytes = new Uint8Array(bytes.length);
@@ -11,8 +11,7 @@ function caesarEncryptBuffer(buffer, shift) {
   return encryptedBytes;
 }
 
-// Decrypts an ArrayBuffer using a byte‑shift.
-// (Decryption subtracts the shift; we add 256 before modding to avoid negatives.)
+// Decrypts an ArrayBuffer using a byte-shift.
 function caesarDecryptBuffer(buffer, shift) {
   const bytes = new Uint8Array(buffer);
   const decryptedBytes = new Uint8Array(bytes.length);
@@ -22,21 +21,19 @@ function caesarDecryptBuffer(buffer, shift) {
   return decryptedBytes;
 }
 
-export default function Caesar() {
+export default function Caesar({ comparisonRef }) {  // Accept comparisonRef
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [encryptionShift, setEncryptionShift] = useState(""); // must be a number
+  const [encryptionShift, setEncryptionShift] = useState("");
   const [encryptedResults, setEncryptedResults] = useState([]);
   const [decryptionShift, setDecryptionShift] = useState("");
   const [decryptedResults, setDecryptedResults] = useState([]);
 
-  // Automatically scroll to top after decryption
   useEffect(() => {
     if (decryptedResults.length > 0) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [decryptedResults]);
 
-  // Handle image file selection
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(files);
@@ -44,7 +41,6 @@ export default function Caesar() {
     setDecryptedResults([]);
   };
 
-  // Encrypt each selected image file using the Caesar cipher
   const encryptFiles = () => {
     if (selectedFiles.length === 0) {
       alert("Please select at least one image file.");
@@ -60,16 +56,21 @@ export default function Caesar() {
       const reader = new FileReader();
       reader.onload = () => {
         try {
+          const startTime = performance.now();
           const arrayBuffer = reader.result;
           const encryptedBytes = caesarEncryptBuffer(arrayBuffer, shift);
-          // Create a Blob for the encrypted image
+          const endTime = performance.now();
+
+          if (comparisonRef?.current) {
+            comparisonRef.current.addComparison("Caesar Cipher", encryptedBytes, startTime, endTime);
+          }
+
           const encryptedBlob = new Blob([encryptedBytes], { type: file.type });
           const encryptedUrl = URL.createObjectURL(encryptedBlob);
           results.push({
             fileName: file.name,
             encryptedUrl: encryptedUrl,
             fileType: file.type,
-            // Store the encrypted bytes for decryption.
             encryptedBytes,
           });
           if (results.length === selectedFiles.length) {
@@ -83,7 +84,6 @@ export default function Caesar() {
     });
   };
 
-  // Decrypt a specific encrypted image file using the Caesar cipher
   const decryptFile = (result) => {
     if (decryptionShift === "" || isNaN(decryptionShift)) {
       alert("Please enter a valid numeric shift for decryption.");
@@ -91,15 +91,8 @@ export default function Caesar() {
     }
     const shift = parseInt(decryptionShift, 10) % 256;
     try {
-      // Since we stored the encrypted bytes from the original read,
-      // we can directly perform the decryption.
-      const decryptedBytes = caesarDecryptBuffer(
-        result.encryptedBytes.buffer,
-        shift
-      );
-      const decryptedBlob = new Blob([decryptedBytes], {
-        type: result.fileType,
-      });
+      const decryptedBytes = caesarDecryptBuffer(result.encryptedBytes.buffer, shift);
+      const decryptedBlob = new Blob([decryptedBytes], { type: result.fileType });
       const decryptedUrl = URL.createObjectURL(decryptedBlob);
       const decObj = { fileName: result.fileName, decryptedUrl: decryptedUrl };
       setDecryptedResults((prev) => [...prev, decObj]);
@@ -109,7 +102,6 @@ export default function Caesar() {
     }
   };
 
-  // Helper function to trigger the browser download for a file
   const downloadFile = (url, fileName) => {
     const a = document.createElement("a");
     a.href = url;
@@ -119,7 +111,6 @@ export default function Caesar() {
     document.body.removeChild(a);
   };
 
-  // Styling similar to AES and DES components
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
@@ -194,6 +185,7 @@ export default function Caesar() {
           Encrypt Files
         </button>
       </div>
+
       {encryptedResults.length > 0 && (
         <div style={cardStyle}>
           <h2 style={{ ...headingStyle, fontSize: "28px", color: "#333" }}>
@@ -216,10 +208,7 @@ export default function Caesar() {
               <button
                 style={buttonStyle}
                 onClick={() =>
-                  downloadFile(
-                    result.encryptedUrl,
-                    result.fileName + "_encrypted"
-                  )
+                  downloadFile(result.encryptedUrl, result.fileName + "_encrypted")
                 }
               >
                 Download Encrypted File
@@ -238,6 +227,7 @@ export default function Caesar() {
           ))}
         </div>
       )}
+
       {decryptedResults.length > 0 && (
         <div style={cardStyle}>
           <h2 style={{ ...headingStyle, fontSize: "28px", color: "#333" }}>
